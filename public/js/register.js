@@ -84,7 +84,6 @@ oSubmit.onclick = function (e) {
 
         this.nextElementSibling.textContent = '账号或密码不规范'
         this.nextElementSibling.style.color = 'red';
-
         return e.preventDefault();
     }
 

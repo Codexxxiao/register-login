@@ -11,7 +11,15 @@ function findUser(username, password) {
     })
 }
 
+function findUserName(username) {
+    return model.findOne({
+        username,
+    })
+}
+
+
 
 module.exports = {
     findUser,
+    findUserName,
 }

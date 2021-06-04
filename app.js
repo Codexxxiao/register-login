@@ -3,13 +3,16 @@
     try {
         // 导入express模块
         let express = require('express');
+        // 导入ejs模块
+        let ejs = require('ejs');
         // 导入register模块 用createUser解析变量
         let {
             createUser
         } = require('./mongoose/crud/register');
         // 导入login模块，用findUser解析变量
         let {
-            findUser
+            findUser,
+            findUserName
         } = require('./mongoose/crud/login');
 
         // 导入数据库连接模块
@@ -28,6 +31,12 @@
             extended: true
         }));
 
+        // 定义模板引擎
+        app.set('view engine', 'ejs');
+
+        // 定义模板的路径
+        app.set('views', './module');
+
         // 4.还不知道需要定义什么路由
         // 4.1定义注册post路由　
         app.post('/register', async (request, response) => {
@@ -36,13 +45,19 @@
                 username,
                 password
             } = request.body;
-            // createUser返回一个promise对象
-            await createUser(username, password);
 
-            // 注册成功后重定向到登录界面
-            response.redirect('http://127.0.0.1:5000/view/login.html')
+            // 判断账号是否存在
+            let user = await findUserName(username);
+            if (user) {
+                response.send('账号已经被注册')
+            } else {
+                // createUser返回一个promise对象
+                await createUser(username, password);
 
-            // response.send('register-ok')
+                // 注册成功后重定向到登录界面
+                response.redirect('http://127.0.0.1:5000/view/login.html')
+                // response.render()
+            }
         })
         // 4.2定义登录post路由
         app.post('/login', async (request, response) => {
@@ -53,14 +68,13 @@
             } = request.body;
 
             // 查询是否存在
-            let re = await findUser(username, password);
-            console.log(re);
-            if (re) {
-                response.send('登录成功')
+            let user = await findUser(username, password);
+            if (user) {
+                // response.send('登录成功')
+                response.render('home', user)
             } else {
                 response.send('账号或密码错误')
             }
-
         })
 
         // 5.开启服务器
